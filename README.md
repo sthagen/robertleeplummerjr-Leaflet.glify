@@ -1,5 +1,5 @@
-# Leaflet.glify
-web gl renderer plugin for leaflet
+# Leaflet.glify ![Leaflet.glify logo](logo.svg)
+web gl renderer plugin for leaflet in typescript
 
 _Pronounced leaflet-G.L.-Ify, or leaflet-glify, or L.-G.L.-Ify, or L-glify, or elglify_
 
@@ -12,37 +12,66 @@ inspired by http://bl.ocks.org/Sumbera/c6fed35c377a46ff74c3 & need.
 * Remaining as simple as possible with current fastest libs
 * Providing the same sort of user experience one would get using standard html and elements
 
+## Usage
+### Browser
+```html
+<script src="dist/glify-browser.js"></script>
+<script>
+  // namespace
+  L.glify
+</script>
+```
+### Typescript
+```ts
+import glify from 'leaflet.glify';
+```
+### Node
+```html
+const { glify } = require('leaflet.glify');
+```
 
 ## Simple Polygon Usage
-```javascript
+```ts
 L.glify.shapes({
-  map: map,
+  map,
   data: geoJson,
-  click: function(e, feature) {
-    //do something when a shape is clicked
+  click: (e, feature): boolean | void => {
+    // do something when a shape is clicked
+    // return false to continue traversing
+  },
+  hover: (e, feature): boolean | void => {
+    // do something when a shape is hovered
   }
 });
 ```
 
 ## Simple Points Usage
-```javascript
+```ts
 L.glify.points({
-  map: map,
-  data: points,
-  click: function(e, point, xy) {
-    //do something when a point is clicked
+  map,
+  data: pointsOrGeoJson,
+  click: (e, pointOrGeoJsonFeature, xy): boolean | void => {
+    // do something when a point is clicked
+    // return false to continue traversing
+  },
+  hover: (e, pointOrGeoJsonFeature, xy): boolean | void => {
+    // do something when a point is hovered
   }
 });
 ```
 
 ## Simple Lines Usage
-```javascript
+```ts
 L.glify.lines({
   map: map,
   data: geojson,
   size: 2,
-  click: function(e, feature, xy) {
-    //do something when a line is clicked
+  click: (e, feature): boolean | void => {
+    // do something when a line is clicked
+    // return false to continue traversing
+  },
+  hover: (e, feature): boolean | void => {
+    // do something when a line is hovered
   }
 });
 ```
@@ -53,12 +82,16 @@ L.glify.lines({
 * `vertexShaderSource` `{String|Function}` optional glsl vertex shader source, defaults to use `L.glify.shader.vertex`
 * `fragmentShaderSource` `{String|Function}` optional glsl fragment shader source, defaults to use `L.glify.shader.fragment.polygon`
 * `click` `{Function}` optional event handler for clicking a shape
+* `hover` `{Function}` optional event handler for hovering a shape
 * `color` `{Function|Object|String}` optional, default is 'random'
-  * When `color` is a `Function` its arguments are gets the `index`:`number`, and the `feature`:`object` that is being colored
-* `opacity` {Number} a value from 0 to 1, default is 0.5
-* `className` {String} a class name applied to canvas, default is ''
-* `preserveDrawingBuffer` {Boolean} optional, default `false`, perverse draw buffer on webgl context.
+  * When `color` is a `Function` its arguments are the `index`:`number` and the `feature`:`object` that is being colored, opacity can optionally be included as `{ a: number }`.
+    The result should be of interface `IColor`, example: `{r: number, g: number, b: number, a: number }`.
+* `opacity` `{Number}` a value from 0 to 1, default is 0.5.   Only used when opacity isn't included on color.
+* `className` `{String}` a class name applied to canvas, default is ''
+* `border` `{Boolean}` optional, default `false`. When set to `true`, a border with an opacity of 1 is displayed.
+* `preserveDrawingBuffer` `{Boolean}` optional, default `false`, perverse draw buffer on webgl context.
   * CAUTION: May cause performance issue with large data sets.
+* `pane` `{String}` optional, default is `overlayPane`. Can be set to a custom pane.
 
 ## `L.glify.points` Options
 * `map` `{Object}` required leaflet map
@@ -66,31 +99,40 @@ L.glify.lines({
 * `vertexShaderSource` `{String|Function}` optional glsl vertex shader source, defaults to use `L.glify.shader.vertex`
 * `fragmentShaderSource` `{String|Function}` optional glsl fragment shader source, defaults to use `L.glify.shader.fragment.point`
 * `click` `{Function}` optional event handler for clicking a point
+* `hover` `{Function}` optional event handler for hovering a point
 * `color` `{Function|Object|String}` optional, default is 'random'
-  * When `color` is a `Function` its arguments are gets the `index`:`number`, and the `point`:`array` that is being colored 
-* `opacity` {Number} a value from 0 to 1, default is 0.8
-* `className` {String} a class name applied to canvas, default is ''
-* `size` {Number|Function} pixel size of point
+  * When `color` is a `Function` its arguments are the `index`:`number` and the `point`:`array` that is being colored, opacity can optionally be included as `{ a: number }`.
+    The result should be of interface `IColor`, example: `{r: number, g: number, b: number, a: number }`.
+* `opacity` `{Number}` a value from 0 to 1, default is 0.8.  Only used when opacity isn't included on color.
+* `className` `{String}` a class name applied to canvas, default is ''
+* `size` `{Number|Function}` pixel size of point
   * When `size` is a `Function` its arguments are `index`:`number`, and the `point`:`array` that is being sized
-* `sensitivity` {Number} exaggerates the size of the clickable area to make it easier to click a point
-* `preserveDrawingBuffer` {Boolean} optional, default `false`, perverse draw buffer on webgl context.
+* `sensitivity` `{Number}` exaggerates the size of the clickable area to make it easier to click a point
+* `sensitivityHover` `{Number}` exaggerates the size of the hoverable area to make it easier to hover a point
+* `preserveDrawingBuffer` `{Boolean}` optional, default `false`, perverse draw buffer on webgl context.
   * CAUTION: May cause performance issue with large data sets.
+* `pane` `{String}` optional, default is `overlayPane`. Can be set to a custom pane.
 
 ## `L.glify.lines` Options
 * `map` `{Object}` required leaflet map
 * `data` `{Object}` required geojson data
 * `vertexShaderSource` `{String|Function}` optional glsl vertex shader source, defaults to use `L.glify.shader.vertex`
 * `fragmentShaderSource` `{String|Function}` optional glsl fragment shader source, defaults to use `L.glify.shader.fragment.point`
-* `click` `{Function}` optional event handler for clicking a point
+* `click` `{Function}` optional event handler for clicking a line
+* `hover` `{Function}` optional event handler for hovering a line
 * `color` `{Function|Object|String}` optional, default is 'random'
-  * When `color` is a `Function` its arguments are gets the `index`:`number`, and the `point`:`array` that is being colored 
-* `opacity` {Number} a value from 0 to 1, default is 0.5
-* `className` {String} a class name applied to canvas, default is ''
-* `preserveDrawingBuffer` {Boolean} optional, default `false`, perverse draw buffer on webgl context.
+  * When `color` is a `Function` its arguments are the `index`:`number` and the `feature`:`object` that is being colored, opacity can optionally be included as `{ a: number }`.
+    The result should be of interface `IColor`, example: `{r: number, g: number, b: number, a: number }`.
+* `opacity` `{Number}` a value from 0 to 1, default is 0.5.  Only used when opacity isn't included on color.
+* `className` `{String}` a class name applied to canvas, default is ''
+* `sensitivity` `{Number}` exaggerates the size of the clickable area to make it easier to click a line
+* `sensitivityHover` `{Number}` exaggerates the size of the hoverable area to make it easier to hover a line
+* `preserveDrawingBuffer` `{Boolean}` optional, default `false`, perverse draw buffer on webgl context.
   * CAUTION: May cause performance issue with large data sets. 
-* `weight` {Number|Function} a value in pixels of how thick lines should be drawn
+* `weight` `{Number|Function}` a value in pixels of how thick lines should be drawn
   * When `weight` is a `Function` its arguments are gets the `index`:`number`, and the `feature`:`object` that is being drawn
   * CAUTION: Zoom of more than 18 will turn weight internally to 1 to prevent WebGL precision rendering issues.
+* `pane` `{String}` optional, default is `overlayPane`. Can be set to a custom pane.
 
 ## `L.glify` methods
 * `longitudeFirst()`
@@ -98,11 +140,28 @@ L.glify.lines({
 * `instances`
 * `points(options)`
 * `shapes(options)`
-* `flattenData(data)`
+* `lines(options)`
 
 
-## Roadmap
-Soon to come: limitless styles.
+## Building
+
+There are two ways to package this application: Parcel and WebPack.
+
+You can build the parcel version by running ``yarn run build-browser``
+You can build the webpack version by running ``yarn run build-browser-webpack``
+
+## Developing
+
+Use `yarn serve-webpack`
+
+## Update & Remove Data
+L.glify instances can be updated using the `update(data, index)` method.
+* `data` `{Object}` Lines and Shapes require a single GeoJSON feature. Points require the same data structure as the original object and therefore also accept an array of coordinates.
+* `index` `{number}` An integer indicating the index of the element to be updated.
+
+An object or some elements of an object are removed using the `remove(index)` method.
+* `index` `{number|Array}` optional - An integer or an array of integers specifying the indices of the elements to be removed.
+  If `index` is not defined, the entire object is removed.
 
 ## Contributors
 

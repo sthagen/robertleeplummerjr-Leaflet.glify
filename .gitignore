@@ -1,2 +1,11 @@
 node_modules
 bower_components
+.idea
+.dev
+dist/report.html
+yarn.lock
+.cache
+.dev-server
+.build
+dist/src
+dist/example.d.ts
