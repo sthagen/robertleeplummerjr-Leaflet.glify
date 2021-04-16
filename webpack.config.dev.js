@@ -10,7 +10,7 @@ module.exports = {
         compress: true,
         port: 9000
     },
-    mode: "development",
+    mode: 'development',
     module: {
         rules: [
             {
@@ -27,8 +27,7 @@ module.exports = {
                 test: /\.(glsl|vs|fs|vert|frag)$/,
                 exclude: /node_modules/,
                 use: [
-                    'raw-loader',
-                    'glslify-loader'
+                    'ts-shader-loader'
                 ]
             }
         ],
@@ -49,6 +48,6 @@ module.exports = {
     output: {
         filename: 'glify-browser.js',
         path: path.resolve(__dirname, '.dev-server'),
-        libraryTarget: "umd",
+        libraryTarget: 'umd',
     },
 };

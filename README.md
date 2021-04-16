@@ -72,7 +72,10 @@ L.glify.lines({
   },
   hover: (e, feature): boolean | void => {
     // do something when a line is hovered
-  }
+  },
+  hoverOff: (e, feature): boolean | void => {
+    // do something when a line is hovered off
+  },
 });
 ```
 
@@ -120,6 +123,7 @@ L.glify.lines({
 * `fragmentShaderSource` `{String|Function}` optional glsl fragment shader source, defaults to use `L.glify.shader.fragment.point`
 * `click` `{Function}` optional event handler for clicking a line
 * `hover` `{Function}` optional event handler for hovering a line
+* `hoverOff` `{Function}` optional event handler for hovering off a line
 * `color` `{Function|Object|String}` optional, default is 'random'
   * When `color` is a `Function` its arguments are the `index`:`number` and the `feature`:`object` that is being colored, opacity can optionally be included as `{ a: number }`.
     The result should be of interface `IColor`, example: `{r: number, g: number, b: number, a: number }`.
@@ -134,10 +138,12 @@ L.glify.lines({
   * CAUTION: Zoom of more than 18 will turn weight internally to 1 to prevent WebGL precision rendering issues.
 * `pane` `{String}` optional, default is `overlayPane`. Can be set to a custom pane.
 
-## `L.glify` methods
+## `L.glify` methods/properties
 * `longitudeFirst()`
 * `latitudeFirst()`
-* `instances`
+* `pointsInstances`
+* `linesInstances`
+* `shapesInstances`
 * `points(options)`
 * `shapes(options)`
 * `lines(options)`
@@ -151,8 +157,10 @@ You can build the parcel version by running ``yarn run build-browser``
 You can build the webpack version by running ``yarn run build-browser-webpack``
 
 ## Developing
+Use `yarn serve`
 
-Use `yarn serve-webpack`
+## Testing
+Use `yarn test`
 
 ## Update & Remove Data
 L.glify instances can be updated using the `update(data, index)` method.

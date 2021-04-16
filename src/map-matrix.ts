@@ -4,27 +4,40 @@ export class MapMatrix {
     this.array = new Float32Array(16);
   }
 
-  setSize(width: number, height: number, offset?: number): this {
+  setSize(width: number, height: number): this {
     this.array.set([
-      2 / width, 0, 0, 0,
-      0, -2 / height, 0, 0,
-      0, 0, 0, 0,
-      -1, 1, 0, 1
+      2 / width,
+      0,
+      0,
+      0,
+      0,
+      -2 / height,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -1,
+      1,
+      0,
+      1,
     ]);
     return this;
   }
 
-  translateMatrix(tx: number, ty: number): this {
+  translateTo(x: number, y: number): this {
     const { array } = this;
     // translation is in last column of matrix
-    array[12] += array[0] * tx + array[4] * ty;
-    array[13] += array[1] * tx + array[5] * ty;
-    array[14] += array[2] * tx + array[6] * ty;
-    array[15] += array[3] * tx + array[7] * ty;
+    array[12] += array[0] * x + array[4] * y;
+    array[13] += array[1] * x + array[5] * y;
+    array[14] += array[2] * x + array[6] * y;
+    array[15] += array[3] * x + array[7] * y;
 
     return this;
   }
-  scaleMatrix(scale: number) {
+
+  scaleTo(scale: number): this {
     const { array } = this;
     // scaling x and y, which is just scaling first two columns of matrix
     array[0] *= scale;
