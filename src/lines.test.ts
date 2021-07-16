@@ -1,8 +1,8 @@
 import { LatLng, LatLngBounds, LeafletMouseEvent, Map, Point } from "leaflet";
-import {Feature, FeatureCollection, LineString} from "geojson";
+import { Feature, FeatureCollection, LineString } from "geojson";
 import { MapMatrix } from "./map-matrix";
 import { ICanvasOverlayDrawEvent } from "./canvas-overlay";
-import { ILinesSettings, Lines } from "./lines";
+import { ILinesSettings, Lines, WeightCallback } from "./lines";
 
 jest.mock("./canvas-overlay");
 jest.mock("./utils", () => {
@@ -52,9 +52,11 @@ describe("Lines", () => {
     describe("when settings.weight is falsey", () => {
       it("throws", () => {
         const settings = getSettings({ weight: 0 });
+        let weight: WeightCallback | number | null = null;
         expect(() => {
-          new Lines(settings).weight;
+          weight = new Lines(settings).weight;
         }).toThrow();
+        expect(weight).toBeNull();
       });
     });
     describe("when settings.weight is truthy", () => {
@@ -98,9 +100,11 @@ describe("Lines", () => {
     describe("when missing settings.data", () => {
       it("throws", () => {
         delete settings.data;
+        let lines: Lines | null = null;
         expect(() => {
-          new Lines(settings);
+          lines = new Lines(settings);
         }).toThrow('"data" is missing');
+        expect(lines).toBeNull();
       });
     });
     it("sets this.active to true", () => {
@@ -108,7 +112,8 @@ describe("Lines", () => {
       expect(lines.active).toBe(true);
     });
     it("calls this.setup and this.render", () => {
-      new Lines(settings);
+      const lines = new Lines(settings);
+      expect(lines).toBeInstanceOf(Lines);
       expect(setupSpy).toHaveBeenCalled();
       expect(renderSpy).toHaveBeenCalled();
     });
@@ -426,12 +431,12 @@ describe("Lines", () => {
           const offset = new Point(5, 5);
           const zoom = 18;
           callDrawOnCanvas(lines, { zoom, offset });
-          expect(setSizeSpy).toHaveBeenCalledTimes(25);
+          expect(setSizeSpy).toHaveBeenCalledTimes(1);
           expect(setSizeSpy).toHaveBeenCalledWith(
             lines.canvas.width,
             lines.canvas.height
           );
-          expect(scaleToSpy).toHaveBeenCalledTimes(25);
+          expect(scaleToSpy).toHaveBeenCalledTimes(1);
           expect(scaleToSpy).toHaveBeenCalledWith(1);
           expect(translateToSpy).toHaveBeenCalledTimes(25);
           expect(translateToSpy).toHaveBeenCalledWith(-offset.x, -offset.y);
@@ -459,12 +464,12 @@ describe("Lines", () => {
           const offset = new Point(5, 5);
           const zoom = 18;
           callDrawOnCanvas(lines, { zoom, offset });
-          expect(setSizeSpy).toHaveBeenCalledTimes(81);
+          expect(setSizeSpy).toHaveBeenCalledTimes(1);
           expect(setSizeSpy).toHaveBeenCalledWith(
             lines.canvas.width,
             lines.canvas.height
           );
-          expect(scaleToSpy).toHaveBeenCalledTimes(81);
+          expect(scaleToSpy).toHaveBeenCalledTimes(1);
           expect(scaleToSpy).toHaveBeenCalledWith(1);
           expect(translateToSpy).toHaveBeenCalledTimes(81);
           expect(translateToSpy).toHaveBeenCalledWith(-offset.x, -offset.y);
@@ -669,20 +674,18 @@ describe("Lines", () => {
           expect(result).toEqual([true]);
         });
       });
-      describe('when a feature is no longer hovered', () => {
-        it('the instance.hoverOff is called with event and feature', () => {
+      describe("when a feature is no longer hovered", () => {
+        it("the instance.hoverOff is called with event and feature", () => {
           const fakeFeature: Feature<LineString> = {
             type: "Feature",
             properties: {},
             geometry: {
               type: "LineString",
-              coordinates: [
-                [5, 6],
-              ],
+              coordinates: [[5, 6]],
             },
           };
           lines.hoveringFeatures.push(fakeFeature);
-          const hoverOff = lines.settings.hoverOff = jest.fn(() => {});
+          const hoverOff = (lines.settings.hoverOff = jest.fn(() => {}));
           Lines.tryHover(mockHover, lines.map, [lines]);
           expect(hoverOff).toHaveBeenCalledWith(mockHover, fakeFeature);
         });

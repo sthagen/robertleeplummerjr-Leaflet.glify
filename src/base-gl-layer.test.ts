@@ -2,6 +2,7 @@ import {
   BaseGlLayer,
   defaultHoverWait,
   defaultPane,
+  EventCallback,
   IBaseGlLayerSettings,
 } from "./base-gl-layer";
 import { ICanvasOverlayDrawEvent } from "./canvas-overlay";
@@ -234,12 +235,10 @@ describe("BaseGlLayer", () => {
 
   describe("color", () => {
     describe("when settings.color is not defined", () => {
-      it("throws", () => {
+      it("returns null", () => {
         const layer = getGlLayer();
         delete layer.settings.color;
-        expect(() => {
-          layer.color;
-        }).toThrow();
+        expect(layer.color).toBeNull();
       });
     });
     describe("when settings.color is defined", () => {
@@ -404,7 +403,7 @@ describe("BaseGlLayer", () => {
     });
     describe("when settings.hover and settings.setupHover are truthy", () => {
       it("calls settings.setupHover with this.map and settings.hoverWait", () => {
-        const hover = () => {};
+        const hover: EventCallback = () => {};
         const setupHover = jest.fn();
         const hoverWait = 12;
         const layer = getGlLayer({
@@ -605,10 +604,12 @@ describe("BaseGlLayer", () => {
     });
     it("calls gl.blendFunc with gl.SRC_ALPHA and gl.ONE_MINUS_SRC_ALPHA", () => {
       const layer = getGlLayer().setupVertexShader().setupFragmentShader();
-      jest.spyOn(layer.gl, "blendFunc");
+      jest.spyOn(layer.gl, "blendFuncSeparate");
       layer.setupProgram();
-      expect(layer.gl.blendFunc).toHaveBeenCalledWith(
+      expect(layer.gl.blendFuncSeparate).toHaveBeenCalledWith(
         layer.gl.SRC_ALPHA,
+        layer.gl.ONE_MINUS_SRC_ALPHA,
+        layer.gl.ONE,
         layer.gl.ONE_MINUS_SRC_ALPHA
       );
     });
