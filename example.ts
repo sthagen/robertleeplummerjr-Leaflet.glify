@@ -6,7 +6,7 @@ import glify from './src/index';
 const map = L.map('map')
   .setView([50.00, 14.44], 7);
 
-L.tileLayer('http://{s}.sm.mapstack.stamen.com/(toner-background,$fff[difference],$fff[@23],$fff[hsl-saturation@20],toner-lines[destination-in])/{z}/{x}/{y}.png')
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png')
   .addTo(map);
 
 Promise.all([
