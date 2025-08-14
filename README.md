@@ -26,6 +26,40 @@ inspired by http://bl.ocks.org/Sumbera/c6fed35c377a46ff74c3 & need.
 </script>
 ```
 
+### GeoJSON & WGS84 Standard Compliance
+
+Leaflet.glify follows the **World Geodetic System (WGS84) standard** as defined by the National Geospatial-Intelligence Agency (NGA) and adopted by the GeoJSON specification.
+
+#### **Default Coordinate Order**
+
+- **Default format**: `[longitude, latitude]` (WGS84/GeoJSON standard)
+- **Why this matters**: GeoJSON specification requires coordinates in `[lng, lat]` order
+- **Reference**: [WGS84 Standard (NGA)](https://earth-info.nga.mil/php/download.php?file=coord-wgs84), [GeoJSON Specification](https://geojson.org/)
+
+
+#### **Coordinate Order Methods**
+
+```typescript
+import glify from 'leaflet.glify';
+
+// Check current coordinate order, "lngFirst" (default)
+const currentOrder = glify.getCoordinateOrder(); 
+
+// Set coordinate order
+// WGS84/GeoJSON standard [longitude, latitude]
+glify.setCoordinateOrder("lngFirst");  
+
+// Legacy format [latitude, longitude]
+glify.setCoordinateOrder("latFirst"); 
+
+// Fluent API
+// Same as setCoordinateOrder("lngFirst")
+glify.longitudeFirst();
+
+// Same as setCoordinateOrder("latFirst") 
+glify.latitudeFirst();  
+```
+
 ### Typescript
 
 ```ts
