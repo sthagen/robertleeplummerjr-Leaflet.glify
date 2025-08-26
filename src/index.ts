@@ -26,8 +26,20 @@ const shader = {
 };
 
 export class Glify {
-  longitudeKey = 1;
-  latitudeKey = 0;
+
+  /**
+   * Coordinate order follows the World Geodetic System (WGS84) standard
+   * as defined by the National Geospatial-Intelligence Agency (NGA):
+   * https://earth-info.nga.mil/php/download.php?file=coord-wgs84
+   * 
+   * This standard is adopted by GeoJSON specification:
+   * https://geojson.org/
+   * 
+   * Coordinates are always [longitude, latitude] in WGS84/GeoJSON
+   */
+  longitudeKey = 0;
+  latitudeKey = 1;
+  
   clickSetupMaps: Map[] = [];
   contextMenuSetupMaps: Map[] = [];
   hoverSetupMaps: Map[] = [];
@@ -41,16 +53,46 @@ export class Glify {
   shapesInstances: Shapes[] = [];
   linesInstances: Lines[] = [];
 
+  /**
+   * Set coordinate order to [longitude, latitude] 
+   * WGS84/GeoJSON standard
+   * NOTE: This is the default and recommended format
+   */
   longitudeFirst(): this {
     this.longitudeKey = 0;
     this.latitudeKey = 1;
     return this;
   }
 
+
+
+
+  /**
+   * Set coordinate order to [latitude, longitude] 
+   * Legacy format: Use only for data that doesn't 
+   * follow WGS84/GeoJSON standards
+   */
   latitudeFirst(): this {
     this.latitudeKey = 0;
     this.longitudeKey = 1;
     return this;
+  }
+
+  getCoordinateOrder(): "latFirst" | "lngFirst" {
+    return this.longitudeKey === 0 ? "lngFirst" : "latFirst";
+  }
+
+  /**
+   * Set coordinate order for data parsing
+   * @param order - "lngFirst" for WGS84/GeoJSON standard [longitude, latitude]
+   *                "latFirst" for legacy format [latitude, longitude]
+   */
+  setCoordinateOrder(order: "latFirst" | "lngFirst"): this {
+    if (order === "lngFirst") {
+      return this.longitudeFirst();
+    } else {
+      return this.latitudeFirst();
+    }
   }
 
   get instances(): Array<Points | Lines | Shapes> {
